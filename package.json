@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && cp update_base_html.cjs dist/",
     "lint": "eslint .",
     "preview": "vite preview"
   },

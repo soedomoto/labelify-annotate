@@ -34,3 +34,15 @@ tar -xzf labelify-annotate.tgz -C "$DIR" --strip-components=1
 rm labelify-annotate.tgz
 
 echo "Done. Extracted @labelify/annotate into '$DIR'."
+
+# Remove all content of ./venv/lib/python3.12/site-packages/web/dist/apps/labelstudio/*
+echo "Removing all content of ./venv/lib/python3.12/site-packages/web/dist/apps/labelstudio/*..."
+rm -rf ./venv/lib/python3.12/site-packages/web/dist/apps/labelstudio/*
+
+# Copy all content of ./labelify-annotate/dist/assets to ./venv/lib/python3.12/site-packages/web/dist/apps/labelstudio
+echo "Copying all content of ./labelify-annotate/dist/assets to ./venv/lib/python3.12/site-packages/web/dist/apps/labelstudio..."
+cp -r ./labelify-annotate/dist/assets/* ./venv/lib/python3.12/site-packages/web/dist/apps/labelstudio/
+
+# Execute the node command to update base.html
+echo "Updating base.html using node..."
+node ./labelify-annotate/dist/update_base_html.cjs ./labelify-annotate/dist/index.html ./venv/lib/python3.12/site-packages/label_studio/templates/base.html

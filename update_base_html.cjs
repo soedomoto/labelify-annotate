@@ -47,11 +47,11 @@ fs.readFile(indexPath, 'utf8', (err, data) => {
     const updatedBaseData = baseData
       .replace(
         /{% block app-js %}([\s\S]*?){% endblock %}/,
-        `{% block app-js %}\n<script type="module" crossorigin src="{{settings.FRONTEND_HOSTNAME}}/react-app/assets/${scriptBaseNames[0]}?v={{ versions.backend.commit }}"></script>\n{% endblock %}`
+        `{% block app-js %}\n<script type="module" crossorigin src="{{settings.FRONTEND_HOSTNAME}}/react-app/${scriptBaseNames[0]}?v={{ versions.backend.commit }}"></script>\n{% endblock %}`
       )
       .replace(
         /{% block app-css %}([\s\S]*?){% endblock %}/,
-        `{% block app-css %}\n<link href="{{settings.FRONTEND_HOSTNAME}}/react-app/assets/${linkBaseNames[0]}?v={{ versions.backend.commit }}" rel="stylesheet">\n{% endblock %}`
+        `{% block app-css %}\n<link href="{{settings.FRONTEND_HOSTNAME}}/react-app/${linkBaseNames[0]}?v={{ versions.backend.commit }}" rel="stylesheet">\n{% endblock %}`
       );
 
     // Write the updated content back to base.html

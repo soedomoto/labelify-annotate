@@ -31,10 +31,10 @@ jobs:
         run: pnpm version patch --no-git-tag-version
 
       - name: Update all workspace dependencies to latest
-        run: sed -i 's/\"workspace:[^\"]*\"/\"latest\"/g' package.json
+        run: sed -i '' 's/"workspace:[^"]*"/"latest"/g' package.json
 
       - name: Update all workspace dependencies to latest
-        run: sed -i 's/\"link:[^\"]*\"/\"latest\"/g' package.json
+        run: sed -i '' 's/"link:[^"]*"/"latest"/g' package.json
 
       - name: Build package
         run: pnpm run build

@@ -240,7 +240,7 @@ const tasksAtom = atom<TaskType>({ total: 0, total_annotations: 0, total_predict
 const projectDetailAtom = atom<ProjectDetailType>();
 
 export function fetchProjects() {
-  return fetch('/api/projects?page=1&page_size=30&include=id%2Ctitle%2Ccreated_by%2Ccreated_at%2Ccolor%2Cis_published%2Cassignment_settings')
+  return fetch('./api/projects?page=1&page_size=30&include=id%2Ctitle%2Ccreated_by%2Ccreated_at%2Ccolor%2Cis_published%2Cassignment_settings')
     .then((res) => res.json())
     .catch((error) => {
       console.error('Error fetching projects:', error);
@@ -265,7 +265,7 @@ export function useFetchDataManagerView(projectId: number) {
   const [dataManagerView, setDataManagerView] = useAtom(dataManagerViewAtom);
 
   function fetchDataManagerView() {
-    return fetch(`/api/dm/views?project=${projectId}`)
+    return fetch(`./api/dm/views?project=${projectId}`)
       .then((res) => res.json())
       .catch((error) => {
         console.error('Error fetching data manager view:', error);
@@ -286,7 +286,7 @@ export function useProjectDetail(projectId: number) {
   const [projectDetail, setProjectDetail] = useAtom(projectDetailAtom);
 
   function fetchProjectDetail() {
-    return fetch(`/api/projects/${projectId}`)
+    return fetch(`./api/projects/${projectId}`)
       .then((res) => res.json())
       .catch((error) => {
         console.error('Error fetching project detail', error);
@@ -307,7 +307,7 @@ export function useFetchTasks(page: number = 1, pageSize: number = 30, projectId
   const [tasks, setTasks] = useAtom(tasksAtom);
 
   function fetchTasks() {
-    return fetch(`/api/tasks?page=${page}&page_size=${pageSize}&view=${viewId}&project=${projectId}`)
+    return fetch(`./api/tasks?page=${page}&page_size=${pageSize}&view=${viewId}&project=${projectId}`)
       .then((res) => res.json())
       .catch((error) => {
         console.error('Error fetching tasks:', error);

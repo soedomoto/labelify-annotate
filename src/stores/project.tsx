@@ -265,6 +265,7 @@ export function useFetchDataManagerView(projectId: number) {
   const [dataManagerView, setDataManagerView] = useAtom(dataManagerViewAtom);
 
   function fetchDataManagerView() {
+    setLoading(true);
     return fetch(`./api/dm/views?project=${projectId}`)
       .then((res) => res.json())
       .catch((error) => {
@@ -286,6 +287,7 @@ export function useProjectDetail(projectId: number) {
   const [projectDetail, setProjectDetail] = useAtom(projectDetailAtom);
 
   function fetchProjectDetail() {
+    setLoading(true);
     return fetch(`./api/projects/${projectId}`)
       .then((res) => res.json())
       .catch((error) => {
@@ -307,6 +309,7 @@ export function useFetchTasks(page: number = 1, pageSize: number = 30, projectId
   const [tasks, setTasks] = useAtom(tasksAtom);
 
   function fetchTasks() {
+    setLoading(true);
     return fetch(`./api/tasks?page=${page}&page_size=${pageSize}&view=${viewId}&project=${projectId}`)
       .then((res) => res.json())
       .catch((error) => {
@@ -322,3 +325,93 @@ export function useFetchTasks(page: number = 1, pageSize: number = 30, projectId
 
   return { loading, data: tasks }
 }
+
+export function useSaveTask(taskId: number, projectId: number) {
+  const [loading, setLoading] = useState(true);
+
+  function mutate() {
+    setLoading(true);
+    return fetch(`./api/tasks/${taskId}/drafts?project=${projectId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "lead_time": 23.797,
+        "result": [
+          { "value": { "choices": ["Not Sure"] }, "id": "9m5j0VqiQB", "from_name": "sentiment", "to_name": "video_description", "type": "choices", "origin": "manual" },
+          { "value": { "text": ["Not sure"] }, "id": "O6ho-q9Ip7", "from_name": "justification", "to_name": "video_description", "type": "textarea", "origin": "manual" }
+        ],
+        "draft_id": 0,
+        "parent_prediction": null,
+        "parent_annotation": null,
+        "started_at": new Date().toISOString(),
+        "project": projectId,
+      }),
+    })
+      .then((res) => res.json())
+      .catch((error) => {
+        console.error('Error saving task annotation:', error);
+      })
+      .finally(() => setLoading(false));
+  }
+
+  return { mutate, loading };
+}
+
+
+// // Example POST request for save draft
+// fetch("http://bd-anno.shef.ac.uk/labelstudio/api/tasks/4564/drafts?project=11", {
+//   "headers": {
+//     "baggage": "sentry-environment=opensource,sentry-release=1.20.0,sentry-public_key=5f51920ff82a4675a495870244869c6b,sentry-trace_id=d3adf63d7410415aa345a3fad7877879,sentry-sample_rate=0.01,sentry-transaction=%2Fprojects%2F%3Aid(%5Cd%2B)%2Fdata,sentry-sampled=false",
+//     "content-type": "application/json",
+//     "sentry-trace": "d3adf63d7410415aa345a3fad7877879-8ba645f34cad1341-0"
+//   },
+//   "referrer": "http://bd-anno.shef.ac.uk/labelstudio/projects/11/data?tab=13&task=4564",
+//   "body": "{\"lead_time\":23.797,\"result\":[{\"value\":{\"choices\":[\"Not Sure\"]},\"id\":\"9m5j0VqiQB\",\"from_name\":\"sentiment\",\"to_name\":\"video_description\",\"type\":\"choices\",\"origin\":\"manual\"},{\"value\":{\"text\":[\"Not sure\"]},\"id\":\"O6ho-q9Ip7\",\"from_name\":\"justification\",\"to_name\":\"video_description\",\"type\":\"textarea\",\"origin\":\"manual\"}],\"draft_id\":0,\"parent_prediction\":null,\"parent_annotation\":null,\"started_at\":\"2025-10-28T09:44:02.300Z\",\"project\":\"11\"}",
+//   "method": "POST",
+//   "mode": "cors",
+//   "credentials": "omit"
+// });
+
+// // Example POST request for submit annotations
+// fetch("http://bd-anno.shef.ac.uk/labelstudio/api/tasks/4565/annotations?project=11", {
+//   "headers": {
+//     "baggage": "sentry-environment=opensource,sentry-release=1.20.0,sentry-public_key=5f51920ff82a4675a495870244869c6b,sentry-trace_id=d3adf63d7410415aa345a3fad7877879,sentry-sample_rate=0.01,sentry-transaction=%2Fprojects%2F%3Aid(%5Cd%2B)%2Fdata,sentry-sampled=false",
+//     "content-type": "application/json",
+//     "sentry-trace": "d3adf63d7410415aa345a3fad7877879-8ba645f34cad1341-0"
+//   },
+//   "referrer": "http://bd-anno.shef.ac.uk/labelstudio/projects/11/data?tab=13&task=4565",
+//   "body": "{\"lead_time\":162.307,\"result\":[{\"value\":{\"choices\":[\"Not Sure\"]},\"id\":\"qOU-bqpdFb\",\"from_name\":\"sentiment\",\"to_name\":\"video_description\",\"type\":\"choices\",\"origin\":\"manual\"},{\"value\":{\"text\":[\"Not clear description\"]},\"id\":\"9IiE17c6Co\",\"from_name\":\"justification\",\"to_name\":\"video_description\",\"type\":\"textarea\",\"origin\":\"manual\"}],\"draft_id\":817,\"parent_prediction\":null,\"parent_annotation\":null,\"started_at\":\"2025-10-28T09:39:26.293Z\",\"project\":\"11\"}",
+//   "method": "POST",
+//   "mode": "cors",
+//   "credentials": "omit"
+// });
+
+// // Example PATCH request for update annotation
+// fetch("http://bd-anno.shef.ac.uk/labelstudio/api/annotations/3042?taskID=4564&project=11", {
+//   "headers": {
+//     "baggage": "sentry-environment=opensource,sentry-release=1.20.0,sentry-public_key=5f51920ff82a4675a495870244869c6b,sentry-trace_id=d3adf63d7410415aa345a3fad7877879,sentry-sample_rate=0.01,sentry-transaction=%2Fprojects%2F%3Aid(%5Cd%2B)%2Fdata,sentry-sampled=false",
+//     "content-type": "application/json",
+//     "sentry-trace": "d3adf63d7410415aa345a3fad7877879-8ba645f34cad1341-0"
+//   },
+//   "referrer": "http://bd-anno.shef.ac.uk/labelstudio/projects/11/data?tab=13&task=4564",
+//   "body": "{\"lead_time\":200.381,\"result\":[{\"value\":{\"choices\":[\"Not Sure\"]},\"id\":\"9m5j0VqiQB\",\"from_name\":\"sentiment\",\"to_name\":\"video_description\",\"type\":\"choices\",\"origin\":\"manual\"},{\"value\":{\"text\":[\"Not sure aja\"]},\"id\":\"O6ho-q9Ip7\",\"from_name\":\"justification\",\"to_name\":\"video_description\",\"type\":\"textarea\",\"origin\":\"manual\"}],\"draft_id\":0,\"parent_prediction\":null,\"parent_annotation\":null,\"started_at\":\"2025-10-28T09:44:27.600Z\",\"project\":\"11\"}",
+//   "method": "PATCH",
+//   "mode": "cors",
+//   "credentials": "omit"
+// });
+
+// // Example GET request for delete annotations
+// fetch("http://bd-anno.shef.ac.uk/labelstudio/api/dm/actions?id=delete_tasks_annotations&tabID=13&project=11", {
+//   "headers": {
+//     "baggage": "sentry-environment=opensource,sentry-release=1.20.0,sentry-public_key=5f51920ff82a4675a495870244869c6b,sentry-trace_id=d3adf63d7410415aa345a3fad7877879,sentry-sample_rate=0.01,sentry-transaction=%2Fprojects%2F%3Aid(%5Cd%2B)%2Fdata,sentry-sampled=false",
+//     "content-type": "application/json",
+//     "sentry-trace": "d3adf63d7410415aa345a3fad7877879-8ba645f34cad1341-0"
+//   },
+//   "referrer": "http://bd-anno.shef.ac.uk/labelstudio/projects/11/data?tab=13",
+//   "body": "{\"ordering\":[\"tasks:annotators\"],\"selectedItems\":{\"all\":false,\"included\":[4564]},\"filters\":{\"conjunction\":\"and\",\"items\":[]},\"annotator\":\"\",\"project\":\"11\"}",
+//   "method": "POST",
+//   "mode": "cors",
+//   "credentials": "omit"
+// });

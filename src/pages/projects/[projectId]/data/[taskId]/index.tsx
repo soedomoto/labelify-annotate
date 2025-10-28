@@ -1,4 +1,4 @@
-import { Registry, renderHtxString } from "@labelify/tags";
+import { renderHtxString, getInstancesValues } from "@labelify/tags";
 import { Button, Flex, Modal, Stack } from "@mantine/core";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import type { ProjectDetailType, Task } from "../../../../../stores/project";
@@ -20,7 +20,7 @@ export default function TaskPage() {
         <Flex justify="space-between" align="center">
           <div></div>
           <Button variant="filled" onClick={() => {
-            console.log('Submit clicked', Registry.getInstancesValues());
+            console.log('Submit clicked', getInstancesValues());
           }}>Submit</Button>
         </Flex>
       </Stack>

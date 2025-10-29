@@ -1,14 +1,15 @@
+import type { LayoutOutletContext } from "@/pages/layout";
 import { Avatar, Card, Group, Text } from "@mantine/core";
 import { showNotification } from '@mantine/notifications';
 import { DataTable } from "mantine-datatable";
-import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
-import { useFetchDataManagerView, useFetchTasks, useProjectDetail } from "../../../../stores/project";
+import { NavLink, Outlet, useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useFetchDataManagerView, useFetchTasks } from "../../../../stores/project";
 
 export default function DataPage() {
-  const { projectId, taskId } = useParams<{ projectId?: string, taskId?: string }>();
   const navigate = useNavigate();
+  const { projectId } = useParams<{ projectId?: string, taskId?: string }>();
+  const context = useOutletContext<LayoutOutletContext>();
 
-  const { data: project } = useProjectDetail(parseInt(projectId || "0"));
   const { data: dmView } = useFetchDataManagerView(parseInt(projectId || "0"));
   const [dm] = dmView || [];
   const { data: tasks } = useFetchTasks(1, 30, parseInt(projectId || "0"), dm?.id || 0);
@@ -56,10 +57,7 @@ export default function DataPage() {
           }
         />
       </Card>
-      <Outlet context={{
-        project,
-        task: (tasks?.tasks || [])?.find(t => t.id === Number(taskId)),
-      }} />
+      <Outlet context={context} />
     </>
   );
 }

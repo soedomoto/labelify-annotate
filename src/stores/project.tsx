@@ -282,24 +282,26 @@ export function useFetchDataManagerView(projectId: number) {
   return { loading, data: dataManagerView }
 }
 
-export function useProjectDetail(projectId: number) {
-  const [loading, setLoading] = useState(true);
+export function useProjectDetail(projectId: number, options?: { disable?: boolean }) {
+  const [loading, setLoading] = useState(false);
   const [projectDetail, setProjectDetail] = useAtom(projectDetailAtom);
 
-  function fetchProjectDetail() {
+  async function fetchProjectDetail() {
     setLoading(true);
-    return fetch(`./api/projects/${projectId}`)
+    await fetch(`./api/projects/${projectId}`)
       .then((res) => res.json())
       .catch((error) => {
         console.error('Error fetching project detail', error);
-      });
+      })
+      .then(setProjectDetail);
+    setLoading(false);
   }
 
   useEffect(() => {
-    fetchProjectDetail().then(setProjectDetail).finally(() => setLoading(false));
+    if (!options?.disable) fetchProjectDetail();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [projectId, options?.disable]);
 
   return { loading, data: projectDetail }
 }
@@ -324,37 +326,6 @@ export function useFetchTasks(page: number = 1, pageSize: number = 30, projectId
   }, []);
 
   return { loading, data: tasks }
-}
-
-export function useSaveTaskDraft(taskId: number, projectId: number) {
-  const [loading, setLoading] = useState(true);
-
-  async function mutate(values: Record<string, unknown>) {
-    setLoading(true);
-    await fetch(`./api/tasks/${taskId}/drafts?project=${projectId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "lead_time": 23.797,
-        "result": Object.values(values),
-        "draft_id": 0,
-        "parent_prediction": null,
-        "parent_annotation": null,
-        "started_at": new Date().toISOString(),
-        "project": projectId,
-      }),
-    })
-      .then((res) => res.json())
-      .catch((error) => {
-        console.error('Error saving task annotation:', error);
-      });
-
-    setLoading(false);
-  }
-
-  return { mutate, loading };
 }
 
 export function useUpdateTaskDraft(draftId: number, projectId: number) {
@@ -469,7 +440,7 @@ export function useUpdateTaskSubmission(submissionId: number, taskId: number, pr
 //     "id": 824,
 //     "user": "prawisudatama@gmail.com",
 //     "created_username": "prawisudatama@gmail.com, 2",
-//     "created_ago": "0 minutes",
+//     "created_ago": "0 minutes",
 //     "result": [
 //         {
 //             "value": {
@@ -525,7 +496,7 @@ export function useUpdateTaskSubmission(submissionId: number, taskId: number, pr
 //     "id": 824,
 //     "user": "prawisudatama@gmail.com",
 //     "created_username": "prawisudatama@gmail.com, 2",
-//     "created_ago": "0 minutes",
+//     "created_ago": "0 minutes",
 //     "result": [
 //         {
 //             "value": {
@@ -604,7 +575,7 @@ export function useUpdateTaskSubmission(submissionId: number, taskId: number, pr
 //         }
 //     ],
 //     "created_username": " prawisudatama@gmail.com, 2",
-//     "created_ago": "0 minutes",
+//     "created_ago": "0 minutes",
 //     "completed_by": 2,
 //     "was_cancelled": false,
 //     "ground_truth": false,

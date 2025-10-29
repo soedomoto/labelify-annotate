@@ -2,6 +2,8 @@
 
 import { atom, useAtom } from "jotai";
 import { useEffect, useState } from "react";
+import type { Annotation } from "./annotation";
+import type { Draft } from "./draft";
 
 export interface TaskDetail {
   id: number;
@@ -35,76 +37,6 @@ export interface TaskDetail {
   last_comment_updated_at: string | null;
   project: number;
   comment_authors: any[];
-}
-
-export interface Annotation {
-  id: number;
-  result: AnnotationResult[];
-  created_username: string;
-  created_ago: string;
-  completed_by: CompletedBy;
-  was_cancelled: boolean;
-  ground_truth: boolean;
-  created_at: string;
-  updated_at: string;
-  draft_created_at: string | null;
-  lead_time: number;
-  import_id: number | null;
-  last_action: string | null;
-  bulk_created: boolean;
-  task: number;
-  project: number;
-  updated_by: number;
-  parent_prediction: number | null;
-  parent_annotation: number | null;
-  last_created_by: number | null;
-}
-
-export interface AnnotationResult {
-  value: DraftValue;
-  id: string;
-  from_name: string;
-  to_name: string;
-  type: "choices" | "textarea";
-  origin: string;
-}
-
-export interface Draft {
-  id: number;
-  user: string;
-  created_username: string;
-  created_ago: string;
-  result: DraftResult[];
-  lead_time: number;
-  was_postponed: boolean;
-  import_id: number | null;
-  created_at: string;
-  updated_at: string;
-  task: number;
-  annotation: number | null;
-}
-
-export interface DraftResult {
-  value: DraftValue;
-  id: string;
-  from_name: string;
-  to_name: string;
-  type: "choices" | "textarea";
-  origin: string;
-}
-
-export interface DraftValue {
-  choices?: string[];
-  text?: string[];
-}
-
-export interface CompletedBy {
-  id: number;
-  first_name: string;
-  last_name: string;
-  avatar: string | null;
-  email: string;
-  initials: string;
 }
 
 export interface UpdatedBy {
@@ -141,7 +73,7 @@ export function useFetchTaskDetail(taskId: number, projectId: number, options?: 
   useEffect(() => {
     if (!options?.disable) fetchTask();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taskId, projectId]);
+  }, [taskId, projectId, options?.disable]);
 
-  return { loading, data: task }
+  return { loading, data: task , refetch: fetchTask };
 }

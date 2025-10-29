@@ -1,5 +1,5 @@
 import type { LayoutOutletContext } from "@/pages/layout";
-import { useSubmitAnnotation } from "@/stores/annotation";
+import { useSubmitAnnotation, type Annotation } from "@/stores/annotation";
 import { useSaveAnnotationDraft, type Draft } from "@/stores/draft";
 import { useProjectDetail } from "@/stores/project";
 import { useFetchTaskDetail } from "@/stores/task-detail";
@@ -16,10 +16,10 @@ export default function TaskPage() {
 
   const { data: project } = useProjectDetail(parseInt(projectId || "0"), { disable: !projectId });
 
-  const [drafts, setDrafts] = useState<Draft[]>();
+  const [drafts, setDrafts] = useState<(Draft | Annotation)[]>();
   const [selectedDraftIdx, setSelectedDraftIdx] = useState<number | null>(null);
   const { loading: fetchTaskLoading, data: taskDetail, refetch: fetchTask } = useFetchTaskDetail(parseInt(taskId || "0"), parseInt(projectId || "0"), { disable: !taskId || !projectId });
-  const annotation  = taskDetail?.annotations.find(a => a?.completed_by?.id == outletContext?.currentUser?.id) || [];
+  const annotation  = taskDetail?.annotations.find(a => a?.completed_by?.id == outletContext?.currentUser?.id);
 
   const { loading: saveDraftLoading, mutate: saveTaskDraft, data: savedDraft } = useSaveAnnotationDraft(parseInt(taskId || "0"), parseInt(projectId || "0"));
   const { loading: submitAnnotationLoading, mutate: submitAnnotation } = useSubmitAnnotation(parseInt(taskId || "0"), parseInt(projectId || "0"));
@@ -35,6 +35,12 @@ export default function TaskPage() {
       setDrafts(_drafts => ([..._drafts || [], savedDraft]));
     }
   }, [savedDraft]);
+
+  useEffect(() => {
+    if (annotation) {
+      setDrafts(_drafts => ([..._drafts || [], annotation]));
+    }
+  }, [annotation]);
 
   useEffect(() => {
     if (drafts && drafts.length > 0) {
@@ -88,7 +94,7 @@ export default function TaskPage() {
             }}>Save Draft</Button>
             <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || !!annotation} onClick={async () => {
               if (draft) {
-                await submitAnnotation(draft);
+                await submitAnnotation(draft as Draft);
                 await fetchTask();
               }
             }}>Submit</Button>

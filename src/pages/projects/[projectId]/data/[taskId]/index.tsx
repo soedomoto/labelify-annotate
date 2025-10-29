@@ -1,5 +1,5 @@
 import type { LayoutOutletContext } from "@/pages/layout";
-import { useSubmitAnnotation, type Annotation } from "@/stores/annotation";
+import { useSubmitAnnotation } from "@/stores/annotation";
 import { useSaveAnnotationDraft, type Draft } from "@/stores/draft";
 import { useProjectDetail } from "@/stores/project";
 import { useFetchTaskDetail } from "@/stores/task-detail";
@@ -16,10 +16,11 @@ export default function TaskPage() {
 
   const { data: project } = useProjectDetail(parseInt(projectId || "0"), { disable: !projectId });
 
-  const [drafts, setDrafts] = useState<(Draft | Annotation)[]>();
+  const [drafts, setDrafts] = useState<Draft[]>();
   const [selectedDraftIdx, setSelectedDraftIdx] = useState<number | null>(null);
   const { loading: fetchTaskLoading, data: taskDetail, refetch: fetchTask } = useFetchTaskDetail(parseInt(taskId || "0"), parseInt(projectId || "0"), { disable: !taskId || !projectId });
-  const annotation  = taskDetail?.annotations.find(a => a?.completed_by?.id == outletContext?.currentUser?.id);
+  const [annotation] = taskDetail?.annotations || [];
+  const annotationByMe  = taskDetail?.annotations.find(a => a?.completed_by?.id == outletContext?.currentUser?.id);
 
   const { loading: saveDraftLoading, mutate: saveTaskDraft, data: savedDraft } = useSaveAnnotationDraft(parseInt(taskId || "0"), parseInt(projectId || "0"));
   const { loading: submitAnnotationLoading, mutate: submitAnnotation } = useSubmitAnnotation(parseInt(taskId || "0"), parseInt(projectId || "0"));
@@ -37,18 +38,14 @@ export default function TaskPage() {
   }, [savedDraft]);
 
   useEffect(() => {
-    if (annotation) {
-      setDrafts(_drafts => ([..._drafts || [], annotation]));
-    }
-  }, [annotation]);
-
-  useEffect(() => {
     if (drafts && drafts.length > 0) {
       setSelectedDraftIdx(drafts.length - 1);
     }
   }, [drafts]);
 
   const draft = (drafts && selectedDraftIdx !== null) ? drafts[selectedDraftIdx] : null;
+  let htxValues = draft?.result || [];
+  if (annotation) htxValues = annotation?.result || [];
 
   const renderLoading = () => {
     if (fetchTaskLoading) return <>Loading task...</>;
@@ -66,7 +63,7 @@ export default function TaskPage() {
       centered
     >
       <Stack>
-        {renderHtxString(project?.label_config || '', taskDetail?.data || {}, (draft?.result || []).reduce((obj, i) => ({ ...obj, [i?.from_name]: { formattedValue: { ...i, id: i?.from_name } } }), {}))}
+        {renderHtxString(project?.label_config || '', taskDetail?.data || {}, htxValues.reduce((obj, i) => ({ ...obj, [i?.from_name]: { formattedValue: { ...i, id: i?.from_name } } }), {}))}
         <Flex justify="space-between" align="center">
           <div>{renderLoading()}</div>
           <Flex gap="sm" align="center">
@@ -89,12 +86,12 @@ export default function TaskPage() {
             >
               <IconArrowForwardUp style={{ width: '70%', height: '70%' }} stroke={1.5} />
             </ActionIcon>
-            <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || !!annotation} onClick={() => {
+            <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || !!annotationByMe} onClick={() => {
               saveTaskDraft(getInstancesValues());
             }}>Save Draft</Button>
-            <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || !!annotation} onClick={async () => {
+            <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || !!annotationByMe} onClick={async () => {
               if (draft) {
-                await submitAnnotation(draft as Draft);
+                await submitAnnotation(draft);
                 await fetchTask();
               }
             }}>Submit</Button>

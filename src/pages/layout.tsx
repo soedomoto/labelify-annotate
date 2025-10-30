@@ -118,7 +118,7 @@ export default function LayoutPage() {
         </Flex>
       </AppShell.Header>
       {/* <AppShell.Navbar p="md">Navbar</AppShell.Navbar> */}
-      <AppShell.Main p={0} ref={shellMainRef}>
+      <AppShell.Main pb={0} pl={0} pr={0} ref={shellMainRef}>
         <Outlet context={{
           version,
           currentUser,

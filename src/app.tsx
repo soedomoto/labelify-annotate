@@ -2,13 +2,14 @@ import { createTheme, localStorageColorSchemeManager, MantineProvider } from '@m
 import { Notifications } from '@mantine/notifications';
 import { Suspense } from 'react';
 import { HashRouter, Route, Routes } from 'react-router-dom';
-import ProjectsPage from './pages/projects';
-import { withProvider } from './stores/store';
-import DataPage from './pages/projects/[projectId]/data';
-import TaskPage from './pages/projects/[projectId]/data/[taskId]';
-import LayoutPage from './pages/layout';
-import ProjectDetailPage from './pages/projects/[projectId]';
 import HomePage from './pages';
+import LayoutPage from './pages/layout';
+import ProjectsPage from './pages/projects';
+import ProjectDetailPage from './pages/projects/[projectId]';
+import DataPage from './pages/projects/[projectId]/data';
+import TaskPage from './pages/projects/[projectId]/data/[page]/[taskId]';
+import { withProvider } from './stores/store';
+import PaginatedTasksPage from './pages/projects/[projectId]/data/[page]';
 
 export default function App() {
   const theme = createTheme({
@@ -31,7 +32,9 @@ export default function App() {
               <Route path="projects" Component={ProjectsPage} />
               <Route path="projects/:projectId" Component={ProjectDetailPage}>
                 <Route path="data" Component={DataPage}>
-                  <Route path=":taskId" Component={TaskPage} />
+                  <Route path=":page" Component={PaginatedTasksPage}>
+                    <Route path=":taskId" Component={TaskPage} />
+                  </Route>
                 </Route>
               </Route>
             </Route>

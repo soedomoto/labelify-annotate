@@ -18,14 +18,7 @@ export type Task = {
   updated_by: {
     user_id: number;
   }[];
-  data: {
-    video_description: string;
-    voice_to_text: string | null;
-    username: string;
-    id: number;
-    tiktok_url: string;
-    tiktok_embed_url: string;
-  };
+  data: Record<string, unknown>;
   meta: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -36,6 +29,7 @@ export type Task = {
   last_comment_updated_at: string | null;
   project: number;
   comment_authors: unknown[];
+  page: number;
 }
 
 export type TaskResult = {
@@ -50,16 +44,16 @@ export function useFetchTasks(page: number = 1, pageSize: number = 30, projectId
   const [pTasks, setPTasks] = useState<Record<number, Task[]>>({});
   const [data, setData] = useState<Omit<TaskResult, 'tasks'>>({ total: 0, total_annotations: 0, total_predictions: 0 });
 
-  async function refetch() {
+  async function refetch({ page: oPage }: { page?: number } = {}) {
     setLoading(true);
     await fetch(`./api/tasks?page=${page}&page_size=${pageSize}&view=${viewId}&project=${projectId}`)
       .then((res) => res.json())
       .catch((error) => {
         console.error('Error fetching tasks:', error);
       })
-      .then(_data => {
-        setData(_data);
-        setPTasks(_tasks => ({ ..._tasks, [page]: _data?.tasks }));
+      .then(data => {
+        setData(data);
+        setPTasks(pTasks => ({ ...pTasks, [oPage || page]: (data?.tasks || []).map((t: Record<string, unknown>) => ({ ...t, page: oPage || page })) }));
       });
     setLoading(false);
   }

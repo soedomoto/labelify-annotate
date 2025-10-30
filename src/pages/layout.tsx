@@ -1,8 +1,9 @@
 import { useFetchVersion, type Version } from "@/stores/sysinfo";
 import { useFetchCurrentUser, type CurrentUser } from "@/stores/whoami";
-import { AppShell, Burger, Group } from "@mantine/core";
+import { ActionIcon, AppShell, Avatar, Burger, Flex, Group, Menu, Text, Tooltip, useComputedColorScheme, useMantineColorScheme } from "@mantine/core";
 import { useDisclosure } from '@mantine/hooks';
-import { useRef, useEffect, useState } from "react";
+import { IconArrowsLeftRight, IconMessageCircle, IconMoon, IconPhoto, IconSearch, IconSettings, IconSun, IconTrash } from "@tabler/icons-react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet } from "react-router-dom";
 
 export interface LayoutOutletContext {
@@ -19,11 +20,18 @@ export default function LayoutPage() {
   const [opened, { toggle }] = useDisclosure();
   const [mainHeight, setMainHeight] = useState(0);
 
+  const { toggleColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+
   useEffect(() => {
     const printHeight = () => {
       if (shellMainRef.current) {
         const computedStyle = window.getComputedStyle(shellMainRef.current);
-        setMainHeight(parseFloat(computedStyle.height));
+        setMainHeight(
+          parseFloat(computedStyle.height) -
+          parseFloat(computedStyle.paddingTop) -
+          parseFloat(computedStyle.paddingBottom)
+        );
       }
     };
 
@@ -36,18 +44,78 @@ export default function LayoutPage() {
   return (
     <AppShell
       padding="md"
-      header={{ height: { base: 60, md: 70, lg: 80 } }}
-      // navbar={{
-      //   width: { base: 200, md: 300, lg: 400 },
-      //   breakpoint: 'sm',
-      //   collapsed: { mobile: !opened },
-      // }}
+      header={{ height: { base: 60 } }}
+    // navbar={{
+    //   width: { base: 200, md: 300, lg: 400 },
+    //   breakpoint: 'sm',
+    //   collapsed: { mobile: !opened },
+    // }}
     >
       <AppShell.Header>
-        <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          Labelify Annotate
-        </Group>
+        <Flex align="center" h="100%" px="md" justify="space-between" w="100%">
+          <Group h="100%" px="md">
+            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+            <Text
+              size="xl"
+              fw={900}
+              variant="gradient"
+              gradient={{ from: 'red', to: 'yellow', deg: 22 }}
+            >Labelify Annotate</Text>
+          </Group>
+          <Group h="100%" px="md">
+            <ActionIcon size="lg" radius="xl" variant="outline" autoContrast onClick={() => toggleColorScheme()}>
+              {computedColorScheme == 'light' && <IconMoon size={18} />}
+              {computedColorScheme == 'dark' && <IconSun size={18} />}
+            </ActionIcon>
+            <Menu shadow="md" width={200}>
+              <Menu.Target>
+                <Tooltip label={currentUser?.email || ''}>
+                  <Avatar color="initials" name={currentUser?.initials?.toUpperCase()} radius="xl">{currentUser?.initials?.toUpperCase()}</Avatar>
+                </Tooltip>
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Item disabled>{currentUser?.email || ''}</Menu.Item>
+                <Menu.Divider />
+                <Menu.Label>Application</Menu.Label>
+                <Menu.Item leftSection={<IconSettings size={14} />}>
+                  Settings
+                </Menu.Item>
+                <Menu.Item leftSection={<IconMessageCircle size={14} />}>
+                  Messages
+                </Menu.Item>
+                <Menu.Item leftSection={<IconPhoto size={14} />}>
+                  Gallery
+                </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconSearch size={14} />}
+                  rightSection={
+                    <Text size="xs" c="dimmed">
+                      ⌘K
+                    </Text>
+                  }
+                >
+                  Search
+                </Menu.Item>
+
+                <Menu.Divider />
+
+                <Menu.Label>Danger zone</Menu.Label>
+                <Menu.Item
+                  leftSection={<IconArrowsLeftRight size={14} />}
+                >
+                  Transfer my data
+                </Menu.Item>
+                <Menu.Item
+                  color="red"
+                  leftSection={<IconTrash size={14} />}
+                >
+                  Delete my account
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
+        </Flex>
       </AppShell.Header>
       {/* <AppShell.Navbar p="md">Navbar</AppShell.Navbar> */}
       <AppShell.Main ref={shellMainRef}>

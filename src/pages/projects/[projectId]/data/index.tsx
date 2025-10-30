@@ -5,6 +5,7 @@ import { Outlet, useNavigate, useOutletContext, useParams } from "react-router-d
 import type { ProjectDetailContext } from "..";
 import dayjs from "dayjs";
 import { Avatar } from "@mantine/core";
+import omit from 'lodash/omit';
 
 export default function DataPage() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function DataPage() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(30);
   const { data: tasksInfo } = useFetchTasks(page, pageSize, parseInt(projectId || "0"), view?.id || 0);
-  const records = (tasksInfo?.tasks || []).map(({ data, ...task }) => ({ ...task, ...data }));
+  const records = (tasksInfo?.tasks || []).map(({ data, ...task }) => ({ ...task, ...omit(data, 'id') }));
 
   const key = 'task-columns';
   type Record = typeof records[0];

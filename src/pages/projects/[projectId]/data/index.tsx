@@ -18,9 +18,13 @@ export default function DataPage() {
   const { view, columns: _columns, users, mainHeight } = context || {};
 
   let columns = _columns || [];
+  const idColumns = columns?.filter(c => c.id == 'id');
   const dataColumnsId = columns?.find(c => c.id == 'data')?.children || [];
   const dataColumns = columns?.filter(c => dataColumnsId.includes(c.id));
-  columns = [...columns.filter(c => !dataColumnsId.includes(c.id)), ...dataColumns];
+  const restColumns = columns?.filter(c => c.id != 'id')
+    ?.filter(c => c.id != 'data')
+    ?.filter(c => !dataColumnsId.includes(c.id));
+  columns = [...idColumns, ...restColumns, ...dataColumns];
 
   const [page, setPage] = useState(1);
   const [pageSize] = useState(30);

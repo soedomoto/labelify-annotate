@@ -1,20 +1,17 @@
-import type { LayoutOutletContext } from "@/pages/layout";
 import { useSubmitAnnotation } from "@/stores/annotation";
 import { useSaveAnnotationDraft, type Draft } from "@/stores/draft";
-import { useProjectDetail } from "@/stores/project";
 import { useFetchTaskDetail } from "@/stores/task-detail";
 import { getInstancesValues, renderHtxString } from "@labelify/tags";
 import { ActionIcon, Button, Flex, Modal, Stack } from "@mantine/core";
 import { IconArrowBackUp, IconArrowForwardUp } from '@tabler/icons-react';
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import type { ProjectDetailContext } from "../..";
 
 export default function TaskPage() {
   const navigate = useNavigate();
   const { projectId, taskId } = useParams<{ projectId?: string, taskId?: string }>();
-  const outletContext = useOutletContext<LayoutOutletContext>();
-
-  const { data: project } = useProjectDetail(parseInt(projectId || "0"), { disable: !projectId });
+  const outletContext = useOutletContext<ProjectDetailContext>();
 
   const [drafts, setDrafts] = useState<Draft[]>();
   const [selectedDraftIdx, setSelectedDraftIdx] = useState<number | null>(null);
@@ -63,7 +60,7 @@ export default function TaskPage() {
       centered
     >
       <Stack>
-        {renderHtxString(project?.label_config || '', taskDetail?.data || {}, htxValues.reduce((obj, i) => ({ ...obj, [i?.from_name]: { formattedValue: { ...i, id: i?.from_name } } }), {}))}
+        {renderHtxString(outletContext?.project?.label_config || '', taskDetail?.data || {}, htxValues.reduce((obj, i) => ({ ...obj, [i?.from_name]: { formattedValue: { ...i, id: i?.from_name } } }), {}))}
         <Flex justify="space-between" align="center">
           <div>{renderLoading()}</div>
           <Flex gap="sm" align="center">

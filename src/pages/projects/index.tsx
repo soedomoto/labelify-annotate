@@ -1,8 +1,8 @@
+import { useFetchProjects } from "@/stores/projects";
 import { Avatar, Card, Group, Progress, Text } from "@mantine/core";
 import { showNotification } from '@mantine/notifications';
 import { DataTable } from 'mantine-datatable';
 import { NavLink } from 'react-router-dom';
-import { useFetchProjects } from "../../stores/project";
 
 export default function ProjectsPage() {
   const { data: project } = useFetchProjects();

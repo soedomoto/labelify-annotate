@@ -1,11 +1,13 @@
 import { useFetchProjects } from "@/stores/projects";
-import { Avatar, Card, Group, Progress, Text } from "@mantine/core";
+import { Avatar, Card, Group, Loader, Progress, Text } from "@mantine/core";
 import { showNotification } from '@mantine/notifications';
 import { DataTable } from 'mantine-datatable';
 import { NavLink } from 'react-router-dom';
 
 export default function ProjectsPage() {
-  const { data: project } = useFetchProjects();
+  const { data: project, loading: fetchProjectsLoading } = useFetchProjects();
+
+  if (fetchProjectsLoading) return <Loader size={50} />;
 
   return (
     <Card withBorder radius="md">

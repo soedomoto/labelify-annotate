@@ -1,6 +1,6 @@
 import { useFetchVersion, type Version } from "@/stores/sysinfo";
 import { useFetchCurrentUser, type CurrentUser } from "@/stores/whoami";
-import { ActionIcon, AppShell, Avatar, Burger, Flex, Group, Menu, Text, Tooltip, useComputedColorScheme, useMantineColorScheme } from "@mantine/core";
+import { ActionIcon, AppShell, Avatar, Burger, Flex, Group, Loader, Menu, Text, Tooltip, useComputedColorScheme, useMantineColorScheme } from "@mantine/core";
 import { useDisclosure } from '@mantine/hooks';
 import { IconArrowsLeftRight, IconMessageCircle, IconMoon, IconPhoto, IconSearch, IconSettings, IconSun, IconTrash } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
@@ -14,7 +14,7 @@ export interface LayoutOutletContext {
 
 export default function LayoutPage() {
   const { data: version } = useFetchVersion();
-  const { data: currentUser } = useFetchCurrentUser();
+  const { data: currentUser, loading: fetchUserLoading } = useFetchCurrentUser();
 
   const shellMainRef = useRef<HTMLDivElement>(null);
   const [opened, { toggle }] = useDisclosure();
@@ -41,9 +41,12 @@ export default function LayoutPage() {
     return () => window.removeEventListener('resize', printHeight);
   }, []);
 
+  if (fetchUserLoading) return <Loader size={50} />;
+
   return (
     <AppShell
       padding="md"
+      pos="relative"
       header={{ height: { base: 60 } }}
     // navbar={{
     //   width: { base: 200, md: 300, lg: 400 },
@@ -60,7 +63,7 @@ export default function LayoutPage() {
               fw={900}
               variant="gradient"
               gradient={{ from: 'red', to: 'yellow', deg: 22 }}
-            >Labelify Annotate</Text>
+            >Annotate</Text>
           </Group>
           <Group h="100%" px="md">
             <ActionIcon size="lg" radius="xl" variant="outline" autoContrast onClick={() => toggleColorScheme()}>

@@ -21,7 +21,7 @@ export interface User {
   date_joined: string; // ISO 8601 timestamp
 }
 
-export function useFetchUsers(projectId: number) {
+export function useFetchUsers(projectId: number, options?: { disable?: boolean }) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<User[]>([]);
 
@@ -37,9 +37,9 @@ export function useFetchUsers(projectId: number) {
   }
 
   useEffect(() => {
-    refetch();
+    if (!options?.disable) refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId]);
+  }, [projectId, options?.disable]);
 
   return { loading, data, refetch }
 }

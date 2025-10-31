@@ -44,7 +44,8 @@ export function useFetchTasks(page: number = 1, pageSize: number = 30, projectId
   const [pTasks, setPTasks] = useState<Record<number, Task[]>>({});
   const [data, setData] = useState<Omit<TaskResult, 'tasks'>>({ total: 0, total_annotations: 0, total_predictions: 0 });
 
-  async function refetch({ page: oPage }: { page?: number } = {}) {
+  async function refetch({ page: oPage, clean }: { page?: number, clean?: true } = {}) {
+    if (clean) setPTasks({});
     setLoading(true);
     await fetch(`./api/tasks?page=${page}&page_size=${pageSize}&view=${viewId}&project=${projectId}`)
       .then((res) => res.json())

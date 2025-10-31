@@ -1,6 +1,6 @@
 {
   "name": "@labelify/annotate",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "type": "module",
   "publishConfig": {
     "access": "public",
@@ -18,6 +18,7 @@
   "dependencies": {
     "@labelify/tags": "link:../tags",
     "@mantine/core": "^8.3.5",
+    "@mantine/dates": "^8.3.6",
     "@mantine/hooks": "^8.3.5",
     "@mantine/notifications": "^8.3.5",
     "@tabler/icons-react": "^3.35.0",

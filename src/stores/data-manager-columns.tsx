@@ -34,7 +34,7 @@ export interface ColumnsData {
   columns: ColumnDefinition[];
 }
 
-export function useFetchDataManagerColumns(projectId: number) {
+export function useFetchDataManagerColumns(projectId: number, options?: { disable?: boolean }) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<ColumnsData>();
 
@@ -50,9 +50,9 @@ export function useFetchDataManagerColumns(projectId: number) {
   }
 
   useEffect(() => {
-    refetch();
+    if (!options?.disable) refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId]);
+  }, [projectId, options?.disable]);
 
   return { loading, data, refetch }
 }

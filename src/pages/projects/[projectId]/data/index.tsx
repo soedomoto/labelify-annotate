@@ -70,13 +70,18 @@ export default function DataPage() {
 
   // Reorder columns: id first, data children last
   let columns = _columns || [];
-  const idColumns = columns?.filter(c => c.id == 'id');
-  const dataColumnsId = columns?.find(c => c.id == 'data')?.children || [];
-  const dataColumns = columns?.filter(c => dataColumnsId.includes(c.id));
-  const restColumns = columns?.filter(c => c.id != 'id')
-    ?.filter(c => c.id != 'data')
-    ?.filter(c => !dataColumnsId.includes(c.id));
-  columns = [...idColumns, ...restColumns, ...dataColumns];
+  const nonDataColumns = columns?.filter(c => c?.parent != 'data')?.filter(c => c.id != 'data');
+  const dataColumns = columns?.filter(c => c?.parent == 'data')?.filter(c => c.id != 'id');
+  const dataColumnsId = dataColumns?.map(c => c.id);
+  columns = [...nonDataColumns, ...dataColumns];
+
+  // const idColumns = columns?.filter(c => c.id == 'id');
+  // const dataColumnsId = columns?.find(c => c.id == 'data')?.children || [];
+  // const dataColumns = columns?.filter(c => dataColumnsId.includes(c.id));
+  // const restColumns = columns?.filter(c => c.id != 'id')
+  //   ?.filter(c => c.id != 'data')
+  //   ?.filter(c => !dataColumnsId.includes(c.id));
+  // columns = [...idColumns, ...restColumns, ...dataColumns];
 
   // Fetch tasks
   const [page, setPage] = useState(1);

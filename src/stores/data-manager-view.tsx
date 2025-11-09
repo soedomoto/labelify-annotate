@@ -13,7 +13,14 @@ export type FilterItemIn = {
   type: "String" | "Number" | "Boolean" | "Date";
 }
 
-export type FilterItem = FilterItemIn | {
+export type FilterItemString = {
+  filter: string;
+  operator: 'equal' | 'not_equal' | 'contains' | 'not_contains' | 'regex' | 'empty';
+  value: string | null;
+  type: "String" | "Number" | "Boolean" | "Date";
+}
+
+export type FilterItem = FilterItemString | FilterItemIn | {
   filter: string;
   operator: 'equal' | 'not_equal' | 'less' | 'greater' | 'less_or_equal' | 'greater_or_equal' | 'empty';
   value: string | number | boolean | null;

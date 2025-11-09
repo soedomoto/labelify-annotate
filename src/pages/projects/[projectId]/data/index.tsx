@@ -63,7 +63,7 @@ export default function DataPage() {
   const navigate = useNavigate();
   const { projectId, page: taskPage, taskId } = useParams<{ projectId?: string, page?: string, taskId?: string }>();
   const context = useOutletContext<ProjectDetailContext>();
-  const { columns: _columns, users, mainHeight, view: initialView } = context || {};
+  const { columns: _columns, users, mainHeight, view: initialView, currentUser } = context || {};
 
   const { mutate: updateView, data: updatedViewData } = useUpdateDataManagerView(initialView?.id || 0, parseInt(projectId || "0"));
   const view = updatedViewData || initialView;
@@ -74,14 +74,6 @@ export default function DataPage() {
   const dataColumns = columns?.filter(c => c?.parent == 'data')?.filter(c => c.id != 'id');
   const dataColumnsId = dataColumns?.map(c => c.id);
   columns = [...nonDataColumns, ...dataColumns];
-
-  // const idColumns = columns?.filter(c => c.id == 'id');
-  // const dataColumnsId = columns?.find(c => c.id == 'data')?.children || [];
-  // const dataColumns = columns?.filter(c => dataColumnsId.includes(c.id));
-  // const restColumns = columns?.filter(c => c.id != 'id')
-  //   ?.filter(c => c.id != 'data')
-  //   ?.filter(c => !dataColumnsId.includes(c.id));
-  // columns = [...idColumns, ...restColumns, ...dataColumns];
 
   // Fetch tasks
   const [page, setPage] = useState(1);
@@ -140,6 +132,7 @@ export default function DataPage() {
           resizable: true,
           filtering: filtersItems?.map(f => f?.filter?.replace('filter:tasks:', '')).includes(`${col.parent ? `${col.parent}.` : ''}${col.id}`),
           filter: (
+            !(col?.parent == 'data' && (col?.id == 'annotator_1' || col?.id == 'annotator_2' || col?.id == 'annotator_3')) &&
             <ColumnFilter col={col}
               item={filtersItems?.find(f => f.filter == `filter:tasks:${col.parent ? `${col.parent}.` : ''}${col.id}`)}
               applyFilter={async (filter, operator, value, type) => {
@@ -155,6 +148,11 @@ export default function DataPage() {
                   newFiltersItems = [...filtersItems, { filter, operator, value, type }];
                 }
 
+                newFiltersItems = [
+                  ...newFiltersItems,
+                  { filter: 'filter:tasks:data.assigned_annotators', operator: 'contains', value: currentUser?.email || null, type: 'String' },
+                ];
+
                 await updateView(merge(
                   view?.data,
                   { filters: { conjunction, items: newFiltersItems } } as Partial<ViewConfig>,
@@ -163,7 +161,11 @@ export default function DataPage() {
                 setPage(1);
               }}
               clearFilter={async (filter) => {
-                const newFiltersItems = filtersItems.filter(f => f.filter != filter);
+                let newFiltersItems = filtersItems.filter(f => f.filter != filter);
+                newFiltersItems = [
+                  ...newFiltersItems,
+                  { filter: 'filter:tasks:data.assigned_annotators', operator: 'contains', value: currentUser?.email || null, type: 'String' },
+                ];
                 await updateView({
                   ...view?.data,
                   filters: { conjunction, items: newFiltersItems }
@@ -174,7 +176,11 @@ export default function DataPage() {
               clearAllFilters={async () => {
                 await updateView({
                   ...view?.data,
-                  filters: { conjunction, items: [] }
+                  filters: {
+                    conjunction, items: [
+                      { filter: 'filter:tasks:data.assigned_annotators', operator: 'contains', value: currentUser?.email || null, type: 'String' },
+                    ]
+                  }
                 } as Partial<ViewConfig>);
                 await refetchTasks({ page: 1, clean: true });
                 setPage(1);
@@ -224,13 +230,7 @@ export default function DataPage() {
         }}
         onRowClick={({ record: { page, id } }) => {
           navigate(`/projects/${projectId}/data/${page}/${id}`);
-          // showNotification({
-          //   title: `Clicked on ${tiktok_url}`,
-          //   message: video_description,
-          //   withBorder: true,
-          // });
-        }
-        }
+        }}
       />
       <Outlet context={{
         ...context,

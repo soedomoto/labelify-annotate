@@ -26,7 +26,7 @@ export interface TaskDetail {
   avg_lead_time: number | null;
   draft_exists: boolean;
   updated_by: UpdatedBy[];
-  data: TaskData;
+  data: Record<string, any>;
   meta: Record<string, any>;
   created_at: string;
   updated_at: string;
@@ -41,15 +41,6 @@ export interface TaskDetail {
 
 export interface UpdatedBy {
   user_id: number;
-}
-
-export interface TaskData {
-  video_description: string;
-  voice_to_text: string | null;
-  username: string;
-  id: number;
-  tiktok_url: string;
-  tiktok_embed_url: string;
 }
 
 const taskAtom = atom<TaskDetail | null>(null);

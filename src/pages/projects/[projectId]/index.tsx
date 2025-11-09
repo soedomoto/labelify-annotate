@@ -1,6 +1,6 @@
 import type { LayoutOutletContext } from "@/pages/layout";
 import { useFetchDataManagerColumns, type ColumnDefinition } from "@/stores/data-manager-columns";
-import { useCreateDataManagerView, useFetchDataManagerView, type DataManagerViewType } from "@/stores/data-manager-view";
+import { useCreateDataManagerView, useFetchDataManagerView, useUpdateDataManagerView, type DataManagerViewType } from "@/stores/data-manager-view";
 import { useFetchProjectDetail, type ProjectDetailType } from "@/stores/project-detail";
 import { useFetchUsers, type User } from "@/stores/users";
 import { LoadingOverlay } from "@mantine/core";
@@ -23,19 +23,41 @@ export default function ProjectDetailPage() {
   const { data: dmColumns, loading: fetchColumnsLoading } = useFetchDataManagerColumns(parseInt(projectId || "0"), { disable: !projectId });
   const { data: views, loading: fetchViewsLoading } = useFetchDataManagerView(parseInt(projectId || "0"), { disable: !projectId });
   const { columns = [] } = dmColumns || {};
-  const view = views.find(v => v.data.title == context?.currentUser?.email);
+  const initialView = views.find(v => v.data.title == context?.currentUser?.email);
 
   const { mutate: createView, loading: loadingCreateView } = useCreateDataManagerView(parseInt(projectId || "0"));
+  const { mutate: updateView, data: updatedViewData, loading: loadingUpdateView } = useUpdateDataManagerView(initialView?.id || 0, parseInt(projectId || "0"));
+  const view = updatedViewData || initialView;
+
   useEffect(() => {
     if (!context?.currentUser?.email) return;
     if (fetchViewsLoading) return;
     if (view) return;
-    
+
     createView({ title: context?.currentUser?.email || "Default View" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context?.currentUser?.email, fetchViewsLoading, view]);
 
-  if (fetchProjectLoading || fetchUsersLoading || fetchColumnsLoading || fetchViewsLoading || loadingCreateView) return (
+  useEffect(() => {
+    if (!view) return;
+    if ((view?.data?.filters?.items || []).map(f => f?.filter).includes('filter:tasks:data.assigned_annotators')) return;
+
+    (async () => {
+      await updateView({
+        ...view.data,
+        filters: {
+          conjunction: view.data.filters?.conjunction || 'and',
+          items: [
+            ...(view.data.filters?.items || []),
+            { filter: 'filter:tasks:data.assigned_annotators', operator: 'contains', value: context?.currentUser?.email || null, type: 'String' },
+          ],
+        },
+      });
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [context?.currentUser?.email, view]);
+
+  if (fetchProjectLoading || fetchUsersLoading || fetchColumnsLoading || fetchViewsLoading || loadingCreateView || loadingUpdateView) return (
     <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
   );
 

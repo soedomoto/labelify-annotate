@@ -73,7 +73,7 @@ export default function TaskPage() {
       size='xl'
       opened={true}
       onClose={() => navigate(`/projects/${projectId}/data`)}
-      title={taskDetail?.data?.tiktok_url}
+      title={`Task #${taskDetail?.id}`}
       centered
     >
       <Stack>

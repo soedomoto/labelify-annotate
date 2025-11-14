@@ -25,16 +25,47 @@ export default function ProjectDetailPage() {
   const { columns = [] } = dmColumns || {};
   const initialView = views.find(v => v.data.title == context?.currentUser?.email);
 
-  const { mutate: createView, loading: loadingCreateView } = useCreateDataManagerView(parseInt(projectId || "0"));
+  const { mutate: createView, data: createdViewData, loading: loadingCreateView } = useCreateDataManagerView(parseInt(projectId || "0"));
   const { mutate: updateView, data: updatedViewData, loading: loadingUpdateView } = useUpdateDataManagerView(initialView?.id || 0, parseInt(projectId || "0"));
-  const view = updatedViewData || initialView;
+  const view = updatedViewData || createdViewData || initialView;
 
   useEffect(() => {
     if (!context?.currentUser?.email) return;
     if (fetchViewsLoading) return;
     if (view) return;
 
-    createView({ title: context?.currentUser?.email || "Default View" });
+    createView({
+      title: context?.currentUser?.email || "Default View",
+      hiddenColumns: {
+        explore: [
+          "tasks:inner_id",
+          "tasks:annotations_results",
+          "tasks:annotations_ids",
+          "tasks:predictions_score",
+          "tasks:predictions_model_versions",
+          "tasks:predictions_results",
+          "tasks:file_upload",
+          "tasks:storage_filename",
+          "tasks:created_at",
+          "tasks:updated_at",
+          "tasks:updated_by",
+          "tasks:avg_lead_time",
+          "tasks:draft_exists",
+          "tasks:data.assigned_annotators",
+          "tasks:data.id",
+          "tasks:total_predictions",
+          "tasks:completed_at",
+          "tasks:total_annotations",
+          "tasks:cancelled_annotations"
+        ]
+      },
+      filters: {
+        conjunction: "and",
+        items: [
+          { filter: 'filter:tasks:data.assigned_annotators', operator: 'contains', value: context?.currentUser?.email || null, type: 'String' },
+        ]
+      },
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context?.currentUser?.email, fetchViewsLoading, view]);
 

@@ -69,7 +69,7 @@ export default function DataPage() {
   const view = updatedViewData || initialView;
 
   // Reorder columns: id first, data children last
-  let columns = _columns || [];
+  let columns = (_columns || []).filter(c => !(view?.data?.hiddenColumns?.explore || []).includes(`tasks:${c?.parent ? `${c?.parent}.` : ''}${c.id}`));
   const nonDataColumns = columns?.filter(c => c?.parent != 'data')?.filter(c => c.id != 'data');
   const dataColumns = columns?.filter(c => c?.parent == 'data')?.filter(c => c.id != 'id');
   const dataColumnsId = dataColumns?.map(c => c.id);
@@ -100,10 +100,9 @@ export default function DataPage() {
   const conjunction = view?.data?.filters?.conjunction || 'and';
   const filtersItems = view?.data?.filters?.items || [];
 
-  const { effectiveColumns } = useDataTableColumns({
+  let { effectiveColumns } = useDataTableColumns({
     key: storeColumnsKey,
     columns: columns
-      .filter((col) => !!col?.visibility_defaults?.explore)
       .map((col) => {
         return {
           accessor: col.id,
@@ -190,6 +189,8 @@ export default function DataPage() {
         } as DataTableColumn<Record>;
       }),
   });
+
+  effectiveColumns = columns.map((col) => effectiveColumns.find(c => c.accessor == col.id)) as DataTableColumn<Record>[];
 
   return (
     <>

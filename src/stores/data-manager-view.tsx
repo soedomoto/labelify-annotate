@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import merge from "lodash/merge";
 
 export interface HiddenColumns {
-  explore: string[];
-  labeling: string[];
+  explore?: string[];
+  labeling?: string[];
 }
 
 export type FilterItemIn = {
@@ -96,10 +96,11 @@ const createDataManagerDefaultValues: Partial<ViewConfig> = {
 
 export function useCreateDataManagerView(projectId: number) {
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<DataManagerViewType>();
 
   async function mutate(data: Partial<ViewConfig>) {
     setLoading(true);
-    await fetch(`./api/dm/views?project=${projectId}`, {
+    const result = await fetch(`./api/dm/views?project=${projectId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -115,9 +116,10 @@ export function useCreateDataManagerView(projectId: number) {
       });
 
     setLoading(false);
+    setData(result);
   }
 
-  return { mutate, loading };
+  return { mutate, data, loading };
 }
 
 export function useUpdateDataManagerView(viewId: number, projectId: number) {

@@ -16,8 +16,7 @@ export default function TaskPage() {
   const [drafts, setDrafts] = useState<Draft[]>();
   const [selectedDraftIdx, setSelectedDraftIdx] = useState<number | null>(null);
   const { loading: fetchTaskLoading, data: taskDetail, refetch: fetchTask } = useFetchTaskDetail(parseInt(taskId || "0"), parseInt(projectId || "0"), { disable: !taskId || !projectId });
-  const [annotation] = taskDetail?.annotations || [];
-  const annotationByMe = taskDetail?.annotations.find(a => a?.completed_by?.id == outletContext?.currentUser?.id);
+  const annotationByMe = (taskDetail?.annotations || []).find(a => a?.completed_by?.id == outletContext?.currentUser?.id);
 
   const { loading: saveDraftLoading, mutate: saveTaskDraft, data: savedDraft } = useSaveAnnotationDraft(parseInt(taskId || "0"), parseInt(projectId || "0"));
   const { loading: submitAnnotationLoading, mutate: submitAnnotation } = useSubmitAnnotation(parseInt(taskId || "0"), parseInt(projectId || "0"));
@@ -42,7 +41,7 @@ export default function TaskPage() {
 
   const draft = (drafts && selectedDraftIdx !== null) ? drafts[selectedDraftIdx] : null;
   let htxValues = draft?.result || [];
-  if (annotation) htxValues = annotation?.result || [];
+  if (annotationByMe) htxValues = annotationByMe?.result || [];
 
   const renderLoading = () => {
     if (fetchTaskLoading) return <>Loading task...</>;

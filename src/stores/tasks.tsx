@@ -47,7 +47,7 @@ export function useFetchTasks(page: number = 1, pageSize: number = 30, projectId
   async function refetch({ page: oPage, clean }: { page?: number, clean?: true } = {}) {
     if (clean) setPTasks({});
     setLoading(true);
-    await fetch(`./api/tasks?page=${page}&page_size=${pageSize}&view=${viewId}&project=${projectId}`)
+    await fetch(`./api/tasks?page=${oPage || page}&page_size=${pageSize}&view=${viewId}&project=${projectId}`)
       .then((res) => res.json())
       .catch((error) => {
         console.error('Error fetching tasks:', error);

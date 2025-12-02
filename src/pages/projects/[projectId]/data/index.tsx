@@ -77,7 +77,7 @@ export default function DataPage() {
 
   // Fetch tasks
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(30);
+  const [pageSize] = useState(200);
   const { data: tasksInfo, refetch: refetchTasks, loading: fetchTaskLoading } = useFetchTasks(page, pageSize, parseInt(projectId || "0"), view?.id || 0);
   const records = (tasksInfo?.tasks || []).map(({ data, ...task }) => ({ ...task, ...omit(data, 'id') }));
 
@@ -85,10 +85,10 @@ export default function DataPage() {
     if (page < parseInt(taskPage || "1")) setPage(page => page + 1);
   }, [page, taskPage]);
 
-  useEffect(() => {
-    if (taskId) document.querySelector(`[data-row-id="${taskId}"]`)
-      ?.scrollIntoView({ block: 'end', behavior: 'smooth' });
-  }, [taskId, records]);
+  // useEffect(() => {
+  //   if (taskId) document.querySelector(`[data-row-id="${taskId}"]`)
+  //     ?.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  // }, [taskId, records]);
 
   const storeColumnsKey = 'task-columns';
   type Record = typeof records[0];
@@ -114,9 +114,14 @@ export default function DataPage() {
             if (!value) strValue = '';
             else if (col.type == 'String' || col.type == 'Number') strValue = String(value);
             else if (col.type == 'Datetime') strValue = dayjs(value as string).format('DD MMM YYYY HH:mm');
-            else if (col.id == 'annotators') return record?.annotators?.map(a => {
+            else if (col.id == 'annotators') return (record?.annotators || []).filter(a => a == context?.currentUser?.id).map(a => {
+              const email = users?.find(u => u?.id == a)?.email || '';
               const initials = (users?.find(u => u?.id == a)?.initials || '').toUpperCase();
-              return <Avatar size="sm" color="initials" key={initials} name={initials} radius="xl">{initials}</Avatar>;
+              return (
+                <Tooltip label={email} key={email}>
+                  <Avatar size="sm" color="initials" key={initials} name={initials} radius="xl">{initials}</Avatar>
+                </Tooltip>
+              );
             });
             else if (col.id.endsWith('_at')) strValue = dayjs(value as string).format('DD MMM YYYY HH:mm');
             else strValue = String(value);
@@ -127,7 +132,7 @@ export default function DataPage() {
               </Tooltip>
             )
           },
-          sortable: true,
+          sortable: ['annotators'].includes(col.id) ? false : true,
           resizable: true,
           filtering: filtersItems?.map(f => f?.filter?.replace('filter:tasks:', '')).includes(`${col.parent ? `${col.parent}.` : ''}${col.id}`),
           filter: (

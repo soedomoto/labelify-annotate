@@ -115,7 +115,7 @@ export default function TaskPage() {
               }}>Save Draft</Button>
             </Tooltip>
             <Tooltip label={submitTooltipLabel()}>
-              <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || updateAnnotationLoading || !draft} onClick={async () => {
+              <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || updateAnnotationLoading || (!draft && !annotationByMe)} onClick={async () => {
                 if (annotationByMe) {
                   await updateAnnotation({
                     ...annotationByMe,

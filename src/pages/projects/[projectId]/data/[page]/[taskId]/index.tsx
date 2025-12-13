@@ -117,8 +117,11 @@ export default function TaskPage() {
             <Tooltip label={submitTooltipLabel()}>
               <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || updateAnnotationLoading || (!draft && !annotationByMe)} onClick={async () => {
                 if (annotationByMe) {
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  const { completed_by, ...annotation } = annotationByMe;
+
                   await updateAnnotation({
-                    ...annotationByMe,
+                    ...annotation,
                     result: Object.values(getInstancesValues()) as DraftResult[],
                   });
                 }

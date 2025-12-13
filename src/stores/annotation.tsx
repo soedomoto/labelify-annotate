@@ -72,7 +72,7 @@ export function useUpdateAnnotation(annotationId: number, taskId: number, projec
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<unknown>(null);
 
-  async function mutate(annotation: Annotation) {
+  async function mutate(annotation: Omit<Annotation, 'completed_by'>) {
     setLoading(true);
     await fetch(`./api/annotations/${annotationId}?taskID=${taskId}&project=${projectId}`, {
       method: 'PATCH',

@@ -57,8 +57,8 @@ export default function TaskPage() {
     if (saveDraftLoading) return <>Saving draft...</>;
     if (submitAnnotationLoading) return <>Submitting annotation...</>;
     if (updateAnnotationLoading) return <>Updating annotation...</>;
+    if (annotationByMe) return <>Update annotation</>;
     if (!draft) return <>No draft to submit</>;
-    if (annotationByMe) return <>You have already submitted an annotation for this task</>;
     return <>Submit annotation</>;
   }
 

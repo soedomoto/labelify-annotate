@@ -2,7 +2,7 @@ import { useFetchVersion, type Version } from "@/stores/sysinfo";
 import { useFetchCurrentUser, type CurrentUser } from "@/stores/whoami";
 import { ActionIcon, AppShell, Avatar, Burger, Flex, Group, Loader, Menu, Text, Tooltip, useComputedColorScheme, useMantineColorScheme } from "@mantine/core";
 import { useDisclosure } from '@mantine/hooks';
-import { IconArrowsLeftRight, IconMessageCircle, IconMoon, IconPhoto, IconSearch, IconSettings, IconSun, IconTrash } from "@tabler/icons-react";
+import { IconLogout, IconMoon, IconSun } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { Outlet } from "react-router-dom";
 
@@ -80,7 +80,7 @@ export default function LayoutPage() {
               <Menu.Dropdown>
                 <Menu.Item disabled>{currentUser?.email || ''}</Menu.Item>
                 <Menu.Divider />
-                <Menu.Label>Application</Menu.Label>
+                {/* <Menu.Label>Application</Menu.Label>
                 <Menu.Item leftSection={<IconSettings size={14} />}>
                   Settings
                 </Menu.Item>
@@ -108,12 +108,11 @@ export default function LayoutPage() {
                   leftSection={<IconArrowsLeftRight size={14} />}
                 >
                   Transfer my data
-                </Menu.Item>
-                <Menu.Item
-                  color="red"
-                  leftSection={<IconTrash size={14} />}
+                </Menu.Item> */}
+                <Menu.Item color="red" leftSection={<IconLogout size={14} />}
+                  onClick={() => location.href = `/annotation/logout`}
                 >
-                  Delete my account
+                  Logout
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>

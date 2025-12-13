@@ -1,5 +1,5 @@
-import { useSubmitAnnotation } from "@/stores/annotation";
-import { useSaveAnnotationDraft, type Draft } from "@/stores/draft";
+import { useSubmitAnnotation, useUpdateAnnotation } from "@/stores/annotation";
+import { useSaveAnnotationDraft, type Draft, type DraftResult } from "@/stores/draft";
 import { useFetchTaskDetail } from "@/stores/task-detail";
 import { getInstancesValues, renderHtxString } from "@labelify/tags";
 import { ActionIcon, Button, Flex, Modal, Stack, Tooltip } from "@mantine/core";
@@ -20,6 +20,7 @@ export default function TaskPage() {
 
   const { loading: saveDraftLoading, mutate: saveTaskDraft, data: savedDraft } = useSaveAnnotationDraft(parseInt(taskId || "0"), parseInt(projectId || "0"));
   const { loading: submitAnnotationLoading, mutate: submitAnnotation } = useSubmitAnnotation(parseInt(taskId || "0"), parseInt(projectId || "0"));
+  const { loading: updateAnnotationLoading, mutate: updateAnnotation } = useUpdateAnnotation(annotationByMe?.id || 0, parseInt(taskId || "0"), parseInt(projectId || "0"));
 
   useEffect(() => {
     if (taskDetail) {
@@ -47,6 +48,7 @@ export default function TaskPage() {
     if (fetchTaskLoading) return <>Loading task...</>;
     if (saveDraftLoading) return <>Saving draft...</>;
     if (submitAnnotationLoading) return <>Submitting annotation...</>;
+    if (updateAnnotationLoading) return <>Updating annotation...</>;
     return null;
   }
 
@@ -54,6 +56,7 @@ export default function TaskPage() {
     if (fetchTaskLoading) return <>Loading task...</>;
     if (saveDraftLoading) return <>Saving draft...</>;
     if (submitAnnotationLoading) return <>Submitting annotation...</>;
+    if (updateAnnotationLoading) return <>Updating annotation...</>;
     if (!draft) return <>No draft to submit</>;
     if (annotationByMe) return <>You have already submitted an annotation for this task</>;
     return <>Submit annotation</>;
@@ -63,6 +66,7 @@ export default function TaskPage() {
     if (fetchTaskLoading) return <>Loading task...</>;
     if (saveDraftLoading) return <>Saving draft...</>;
     if (submitAnnotationLoading) return <>Submitting annotation...</>;
+    if (updateAnnotationLoading) return <>Updating annotation...</>;
     if (annotationByMe) return <>You have already submitted an annotation for this task</>;
     return <>Submit draft</>;
   }
@@ -105,18 +109,28 @@ export default function TaskPage() {
               </ActionIcon>
             </Tooltip>
             <Tooltip label={saveDraftTooltipLabel()}>
-              <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || !!annotationByMe} onClick={async () => {
+              <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || updateAnnotationLoading || !!annotationByMe} onClick={async () => {
                 await saveTaskDraft(getInstancesValues());
                 await outletContext?.refetchTasks?.(parseInt(page || "1"));
               }}>Save Draft</Button>
             </Tooltip>
             <Tooltip label={submitTooltipLabel()}>
-              <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || !draft || !!annotationByMe} onClick={async () => {
-                if (draft) {
-                  await submitAnnotation(draft);
-                  await fetchTask();
-                  await outletContext?.refetchTasks?.(parseInt(page || "1"));
+              <Button variant="filled" disabled={fetchTaskLoading || saveDraftLoading || submitAnnotationLoading || updateAnnotationLoading || !draft} onClick={async () => {
+                if (annotationByMe) {
+                  await updateAnnotation({
+                    ...annotationByMe,
+                    result: Object.values(getInstancesValues()) as DraftResult[],
+                  });
                 }
+                else if (draft) {
+                  await submitAnnotation(draft);
+                }
+                else {
+                  return;
+                }
+
+                await fetchTask();
+                await outletContext?.refetchTasks?.(parseInt(page || "1"));
               }}>Submit</Button>
             </Tooltip>
           </Flex>

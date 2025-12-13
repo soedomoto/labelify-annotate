@@ -67,3 +67,33 @@ export function useSubmitAnnotation(taskId: number, projectId: number) {
 
   return { mutate, data, loading };
 }
+
+export function useUpdateAnnotation(annotationId: number, taskId: number, projectId: number) {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<unknown>(null);
+
+  async function mutate(annotation: Annotation) {
+    setLoading(true);
+    await fetch(`./api/annotations/${annotationId}?taskID=${taskId}&project=${projectId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...annotation,
+        "project": projectId
+      }),
+    })
+      .then((res) => res.json())
+      .catch((error) => {
+        console.error('Error patching task annotation:', error);
+      })
+      .then((responseData) => {
+        setData(responseData);
+      });
+
+    setLoading(false);
+  }
+
+  return { mutate, data, loading };
+}

@@ -24,12 +24,12 @@ export type DraftResult = (DraftChoicesResult | DraftTextAreaResult) & {
 
 export interface DraftChoicesResult {
   type: "choices";
-  choices: string[];
+  value: { choices: string[] };
 }
 
 export interface DraftTextAreaResult {
   type: "textarea";
-  text: string[];
+  value: { text: string[] };
 }
 
 export function useSaveAnnotationDraft(taskId: number, projectId: number) {
